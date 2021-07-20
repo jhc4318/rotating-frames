@@ -1,50 +1,89 @@
 <template> 
     <div>
+        <iv-DraggableDiv idName="controlPanel" style="width: 20vw;">
+            <div>
+                <iv-slider id="speedSlider" name="Speed (relative)" :min="0" :max="1" :step="0.1" :init_val="0.5" :tick_step="1" @sliderChanged="changeSpeed" />
+                <iv-slider id="orientationSlider" name="Velocity - Orientation" :min="0" :max="360" :step="22.5" :init_val="180" :tick_step="360" @sliderChanged="changeOrientation" />
+                <iv-slider id="latitudeSlider" name="Latitude" :min="-90" :max="90" :step="11.25" :init_val="33.75" :tick_step="180" @sliderChanged="changeLatitude" />
+                <iv-slider id="longitudeSlider" name="Longitude" :min="0" :max="360" :step="22.5" :init_val="45" :tick_step="360" @sliderChanged="changeLongitude" />
+            </div>
+        </iv-DraggableDiv>
         <iv-visualisation :title="projectName">
-            <template #hotspots>     
-                <!-- Sliders -->
-                <iv-fixed-hotspot position="topright" style="z-index: 2;" transparent>
-                    <div>
-                        <iv-slider id="speedSlider" name="Speed (relative)" :min="0" :max="1" :step="0.1" :init_val="0.5" :tick_step="1" @sliderChanged="changeSpeed" />
-                        <iv-slider id="orientationSlider" name="Velocity - Orientation" :min="0" :max="360" :step="22.5" :init_val="180" :tick_step="360" @sliderChanged="changeOrientation" />
-                        <iv-slider id="latitudeSlider" name="Latitude" :min="-90" :max="90" :step="11.25" :init_val="33.75" :tick_step="180" @sliderChanged="changeLatitude" />
-                        <iv-slider id="longitudeSlider" name="Longitude" :min="0" :max="360" :step="22.5" :init_val="45" :tick_step="360" @sliderChanged="changeLongitude" />
-                    </div>
-                </iv-fixed-hotspot>
+            <template #hotspots>
+                <iv-pane position="left" format="full">
+                    <iv-sidebar-content :showPagination="true">
+                        <iv-sidebar-section title="Centrifugal" icon="globe">
+                            The <span style="color: rgb(255,0,0)">red vector</span> on the "View Vectors" tab shows the direction of the centrifugal force. However, due to the redistribution of the Earth's mass making it an oblate spheroid, the centrifugal force does not affect the motion of objects in the Earth's frame.
+                        </iv-sidebar-section>
+
+                        <iv-sidebar-section title="Coriolis" theme="Lime" icon="undo">
+                            We can express <iv-equation-box class="in-line-eqn" :stylise="false" equation="\boldsymbol{\omega}" /> in terms of the unit vectors shown in the diagram as <iv-equation-box class="in-line-eqn" :stylise="false" equation="\boldsymbol{\omega}=\omega(cos(\lambda)\mathbf{j}+sin(\lambda)\mathbf{k})" /> where <iv-equation-box class="in-line-eqn" :stylise="false" equation="\lambda" /> is the latitude. Recalling that the Coriolis force is given by <iv-equation-box class="in-line-eqn" :stylise="false" equation="\mathbf{F_{cor}}=-2m\mathbf{v}\times\boldsymbol{\omega}" />, and bearing in mind that the velocity only has components in the plane tangential to the Earth (only has <iv-equation-box class="in-line-eqn" :stylise="false" equation="\mathbf{i}" /> and <iv-equation-box class="in-line-eqn" :stylise="false" equation="\mathbf{j}" /> components), deviations in the plane of motion will only be contributed to by the <iv-equation-box class="in-line-eqn" :stylise="false" equation="\mathbf{k}" /> term in <iv-equation-box class="in-line-eqn" :stylise="false" equation="\boldsymbol{\omega}" />. <br><br>
+                            Therefore, the magnitude of the coriolis acceleration in the plane of motion is given by <iv-equation-box class="in-line-eqn" :stylise="false" equation="a=2v\omega sin(\lambda)" />. Considering a projectile that travels with a constant speed in the plane tangential to the Earth for a distance <iv-equation-box class="in-line-eqn" :stylise="false" equation="L" /> in time <iv-equation-box class="in-line-eqn" :stylise="false" equation="t" /> (so <iv-equation-box class="in-line-eqn" :stylise="false" equation="t=\frac{L}{v}" />), the sideways deflection (in the Earth frame) due to the coriolis force is given by: <br><br>
+                            <span class="center"><iv-equation-box equation="s = \frac{1}{2}(2\omega vsin(\lambda))(\frac{L}{v})^2 \\ = \frac{\omega L^2sin(\lambda)}{v}." /></span> <br>
+                            Note: the coriolis force can be considered constant so long as the projectile does not travel far enough to change the lattitude.
+
+                            <div class="center">
+                                <img src="/assets/Diagram.PNG" alt="diagram of coriolis vector" style="height: 100%; width: 100%;" />
+                            </div>
+                        </iv-sidebar-section>
+
+                        <iv-sidebar-section title="Instructions" theme="Gold" icon="book-open">
+                            Open the "Parameters" hotspot to the right. Use the sliders to adjust various parameters and see how it changes the vectors and the path travelled on the right. <br><br>
+
+                            Click the "View Earth" tab to see different view frames. <br>
+
+                            <h4 style="margin-bottom: 10px">Colour Code:</h4>
+                            <p style="border-left: solid 5px #FF00FF; padding-left: 15px; margin-bottom: 7px"> <b>Omega Vector</b></p>
+                                <p style="border-left: solid 5px rgb(0,146,146); padding-left: 15px; margin-bottom: 7px"> <b>Position Vector</b></p>
+                                <p style="border-left: solid 5px rgb(0,0,0); padding-left: 15px; margin-bottom: 7px"> <b>Velocity Vector</b></p>
+                                <p style="border-left: solid 5px rgb(255,0,0); padding-left: 15px; margin-bottom: 7px"> <b>Centrifugal Force Vector</b></p>
+                                <p style="border-left: solid 5px #008000; padding-left: 15px; margin-bottom: 15px"> <b>Coriolis Force Vector</b></p>
+                        </iv-sidebar-section>
+                    </iv-sidebar-content>
+                </iv-pane>
 
                 <!-- Toggles -->
+                <iv-toggle-hotspot :draggable="true" position="bottom" title="Parameters" idName="controlPanel" />
+
                 <iv-fixed-hotspot position="top" transparent>
-                    <div class="center" style="z-index: 2;">
-                        <iv-toggle-advance :modes="['View Earth', 'View Vectors']" @toggleswitched="changeToggle" />
+                    <div class="center" style="z-index: 2; margin-right: 450px;">
+                        <iv-toggle-advance :modes="['View Vectors', 'View Earth']" @toggleswitched="changeToggle" />
                     </div>   
                 </iv-fixed-hotspot>
             </template>
 
-            <div v-if="!currentToggle" id="graph" class="center" style="padding-top: 50px;" />
-            <div v-if="currentToggle" class="center">
-                <Earthview />
+            <div class="center">
+                <div style="padding-top: 50px;">
+                    <div class="graph-item">
+                        <div id="graph"/>
+                        <div v-if="currentToggle"><Earthview /></div>
+                    </div>
+                    <div class="graph-item">
+                        <Artillery :speed="speed" :orientation="orientation" :latitude="latitude" />
+                    </div>   
+                </div>    
             </div>
+            
+            
             
         </iv-visualisation>
     </div>
 </template>
 <script>
-import {name} from '../package.json';
-import $ from 'jquery'; // eslint-disable-line
 import numeric from 'numeric';
 import * as math from 'mathjs';
 import Plotly from 'plotly.js-dist';
-import P5 from 'p5'; // eslint-disable-line
 import Earthview from './Earthview.vue';
+import Artillery from './Artillery.vue'
 
 export default {
     name:"App",
     components: {
-        Earthview,
+        Earthview, Artillery,
     },
     data(){
         return {
-            projectName: name,
+            projectName: "Pseudo-forces in Earth's rotating frame",
             speed: 0.5,
             orientation: 180,
             latitude: 33.75,
@@ -52,6 +91,7 @@ export default {
             redrawPlot: false,
             reInitPlot: false,
             currentToggle: 0,
+            // image: require('@/assets/Diagram.PNG'),
         };
     },
     methods: {
@@ -355,7 +395,7 @@ export default {
         // Global Initial Parameters --------------------------------------
         let initialPoint = [2., 2., 2.];
         let layout = {
-            width: 450, height: 500,
+            width: 450, height: 450,
             autosize: true,
             margin: {l:0, r:0, t:0, b:0},
             hovermode: "closest",
@@ -454,7 +494,7 @@ export default {
             let meshSize, t;
             let xTrace = [], yTrace = [], zTrace = [];
 
-            console.log(data);
+            // console.log(data);
             return data;
         }
 
@@ -469,19 +509,19 @@ export default {
                     vm.longitude * Math.PI / 180,
                 );
 
-                Plotly.react(
+                Plotly.react( // FIX: This should be animate, but wasn't working and not sure why
                     'graph',
-                    {data: data},
+                    {data: data, layout: layout},
                     {
                         fromcurrent: true,
                         transition: {duration: 0,},
                         frame: {duration: 0, redraw: false,},
                         mode: "afterall",
-                        showlegend: false,
                     }
                 );
+            } else {
+                Plotly.purge("graph");
             }
-            
         }
 
         function main() {
@@ -505,259 +545,6 @@ export default {
 
         main();
         redraw();
-
-
-        //This file deals with the rotating Earth vis.
-        /*
-        let wideness = $("#graph").width(), heightness = 0.7*$(window).height();
-        let playing = true;
-        let omega;
-        let buttonIncrease;
-        let buttonDecrease;
-        let show = false;
-        let img;
-        let dragging = true;
-        const radius = wideness/3;
-        let vecShow = false;
-        let derShow = false;
-        // $("input[type=range]").on('click', () => {dragging != dragging});
-        // $("input[type=range]").on('mouseup', () => {dragging = false});
-
-        const earthview = p5 => {
-            p5.preload = () => {
-                img = p5.loadImage("assets/Earth_smaller.png");
-            }
-
-            p5.setup = () => {
-                let canvas = p5.createCanvas(wideness,heightness,"webgl");
-                canvas.parent("earth");
-
-                let buttonFrame = p5.createButton("Earth Frame");
-                let buttonPlaying = p5.createButton('Play/Pause');
-                buttonPlaying.parent("earth");
-                buttonFrame.parent("earth");
-
-                buttonFrame.mouseOver(function() {
-                    show = !show;
-                })
-
-                buttonFrame.mouseOut(function() {
-                    show = !show;
-                })
-
-                buttonPlaying.mousePressed(function() {
-                    if (playing) {
-                    p5.noLoop()
-                    playing = false
-                } else {
-                    p5.loop()
-                    playing = true
-                }
-                });
-            }
-
-            p5.draw = () => {
-                // omega = slider.value();
-                omega = 0.5;
-                let flatteningFactor = 1 - omega * omega;
-                let a = Math.sqrt(radius * radius / flatteningFactor);
-                p5.background(3);
-                p5.camera(2*wideness/3,0,2*wideness/3,0,0,0,0,1,0)
-
-
-                if (show) {
-                    p5.camera(Math.sqrt(2)*2*wideness/3*Math.sin((3*omega)*p5.millis()/1000+Math.PI/3), 0, Math.sqrt(2)*2/3*wideness*Math.cos((3*omega)*p5.millis()/1000+Math.PI/3), 0, 0, 0, 0, 1, 0);
-                } // There was an empty else here
-
-                p5.rotateY((3*omega)*p5.millis()/1000);
-                p5.pointLight(250,250,250,0, 20)
-                p5.pointLight(250,250,250,0, 20)
-                p5.pointLight(250,250,250,0, 20)
-                p5.pointLight(250,250,250,0, 20)
-                p5.pointLight(250,250,250,0, 20)
-
-                p5.texture(img);
-                p5.sphere(radius)
-            }
-        }
-
-        
-
-        $(document).ready(function () {
-            $("#graph").hide();
-            $("#derivation").hide();
-
-            $("#showVect").on('click', () => {
-                vecShow = !vecShow;
-                //document.getElementById("#showVect").value = (vecShow) ? "Hide Vectors" : "Show Vectors";
-                if (vecShow) {
-                    $("#earth").hide();
-                    $("#graph").show();
-                } else {
-                    $("#earth").show();
-                    $("#graph").hide();
-                }
-            });
-
-            $("#showDer").on('click', () => {
-                derShow = !derShow;
-                //document.getElementById("showDer").value = (derShow) ? "Derivation/Explanation" : "Graphics/Sliders";
-                if (derShow) {
-                    $("#graphics").hide();
-                    $("#derivation").show();
-                } else {
-                    $("#graphics").show();
-                    $("#derivation").hide();
-                }
-            });
-        });
-
-        
-        //This file deals with the 2-d motion vis. It also calls the functions defined in this file and earthView.js, initialising the p5 windows.
-        let width = $("#art").width(), height = 0.7*$(window).height();
-        const m = 50;
-
-        // these arrays will log the positions of the particle for each frame.
-        let counter = 0,
-            xpositions = [],
-            ypositions = [],
-            xpositionsnc = [],
-            ypositionsnc = [];
-        let velx,
-            vely,
-            velz,
-            corx,
-            cory,
-            s;
-
-        let i = width/2,
-            j = height/2,
-            inc = i,
-            jnc = j;
-
-        //physics
-        function computeValues() {
-            let v = vm.speed;
-            let epsilon = vm.orientation * Math.PI / 180;
-            let theta = vm.latitude * Math.PI / 180;
-
-            let vPrime = math.multiply([Math.cos(epsilon), Math.sin(epsilon), 0],-2*v);
-            let omegaPrime = [0, 2*Math.PI/8.6400*Math.cos(theta), 2*Math.PI/8.6400*Math.sin(theta)];
-
-            let FcorPrime = math.cross(vPrime,omegaPrime);
-            let FcorPlane = [FcorPrime[0],FcorPrime[1]];
-
-            return [vPrime, FcorPlane, theta, epsilon, v];
-        }
-
-        let theta, epsilon, v;
-        [[velx,vely,velz], [corx,cory], theta, epsilon, v] = computeValues();
-
-        //Ensures that the values will be updated whenever there is a change in the sliders.
-        $(document).ready(function () {
-            $("input[type=range]").each(function () {
-                $(this).on("input", function () {
-                    [[velx,vely,velz], [corx,cory], theta, epsilon, v] = computeValues();
-                });
-            });
-        });
-        let bacc;
-        //p5
-
-        const artillery = p5 => {
-            p5.preload = () => {
-                bacc = p5.loadImage("assets/ocean.png");
-            }
-
-            p5.setup = function () {
-                let art = p5.createCanvas(width,height);
-                art.parent("art")
-            }
-
-            let play = false;
-            $(".play").on("click", () => {
-                play = !play;
-            });
-
-            $(".reset").on("click", () =>{
-                i = width/2;
-                j = height/2;
-                inc = i;
-                jnc = j;
-                counter = 0;
-                xpositions = [];
-                ypositions = [];
-                xpositionsnc = [];
-                ypositionsnc = [];
-            })
-
-            p5.draw = () => {
-                p5.background(bacc);
-                p5.rectMode(p5.rect.CENTER);
-                for (let w=0;w<height;++w) {
-                    if (w%80 === 0) {
-                        //p5.stroke(19, 109, 0)
-                        p5.stroke(255, 223, 145)
-                        p5.line(w-40,height,w-40,0)
-                        p5.line(0,w-40,width,w-40)
-                    }
-                }
-                p5.noStroke();
-                p5.fill(206, 0, 161);
-                p5.ellipse(i, j,8,8);
-
-                if (play && ((i-width/2)**2+(j-height/2)**2)**0.5<(width*v/2)) {
-                    i -= (vely + counter*cory/(10*m));
-                    j -= (velx + counter*corx/(10*m));
-                    xpositions.push(i);
-                    ypositions.push(j);
-
-                    inc -= vely;
-                    jnc -= velx;
-                    xpositionsnc.push(inc);
-                    ypositionsnc.push(jnc);
-
-                    counter += 1;
-                } else {
-                    play = false;
-                }
-
-                for (let t=1; t<xpositions.length; t++) {
-                    if (t%15 === 0) {
-                        p5.stroke(255, 223, 145);
-                        p5.line(xpositionsnc[t-6],ypositionsnc[t-6],xpositionsnc[t],ypositionsnc[t]);
-                        p5.line(xpositionsnc[t-6]+1,ypositionsnc[t-6],xpositionsnc[t]+1,ypositionsnc[t]);
-                        p5.stroke(255, 223, 145);
-                        p5.line(xpositions[t-6],ypositions[t-6],xpositions[t],ypositions[t]);
-                        p5.line(xpositions[t-6]+1,ypositions[t-6],xpositions[t]+1,ypositions[t]);
-
-                        p5.line(xpositionsnc[t-6]+1,ypositionsnc[t-6],xpositionsnc[t]+1,ypositionsnc[t]);
-                    }
-                }
-
-                p5.stroke(27, 173, 151);
-                p5.fill(80, 88, 37);
-                //p5.rotate(2);
-                p5.ellipse(width/2,height/2,24,24);
-
-
-                s = 2*Math.PI*(xpositions.length*100)**2*Math.sin(theta)/(86400*v*100)
-
-                p5.fill(200,200,210);
-                p5.noStroke();
-                p5.textSize(16);
-                p5.textStyle(p5.BOLD);
-
-                p5.text("Range:    "+(width*v/2*0.1).toFixed(2)+"km",1.8*width/3,3.5*height/4);
-                p5.text("Distance:  "+(Math.round(((i-width/2)**2+(j-height/2)**2)**0.5)*0.1).toFixed(2)+"km",1.8*width/3,3.7*height/4);
-                p5.text("Deflection: "+(Math.round(s)).toFixed(2)+"m",1.8*width/3,3.9*height/4);
-
-            };
-        }
-
-        const p5inst = new P5(earthview, 'earth');
-        // const p5inst2 = new P5(artillery)
-        */
     },
 }
 </script>
@@ -767,5 +554,19 @@ export default {
     flex-direction: column;
     align-items: center;
     /* margin-top: 50px; */
+}
+.in-line-eqn {
+    margin-top: -25px;
+    margin-bottom: -25px;
+}
+.graph-item {
+    display: inline-block; 
+    margin-top: 50px; 
+    margin-left: 20px; 
+    margin-right: 20px;
+}
+.iv-main-stage {
+    overflow: hidden;
+    overflow-x: hidden;
 }
 </style>

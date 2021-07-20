@@ -14,14 +14,16 @@
   "author": "Robert King",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@impvis/components": "^1.0.0",
+    "@impvis/components": "^1.4.8",
     "@impvis/components-katex": "^1.0.0",
     "core-js": "^3.6.5",
+    "file-loader": "^6.2.0",
     "jquery": "^3.6.0",
     "mathjs": "^9.4.4",
     "numeric": "^1.2.6",
     "p5": "^1.4.0",
     "plotly.js-dist": "^2.2.1",
+    "url-loader": "^4.1.1",
     "vue": "^2.6.11"
   },
   "devDependencies": {
@@ -32,8 +34,8 @@
     "babel": "^6.23.0",
     "babel-eslint": "^10.1.0",
     "chalk": "^4.1.0",
-    "eslint": "^7.30.0",
-    "eslint-plugin-vue": "^7.13.0",
+    "eslint": "^7.31.0",
+    "eslint-plugin-vue": "^7.14.0",
     "vue-template-compiler": "^2.6.11"
   },
   "impvisConfig": {
